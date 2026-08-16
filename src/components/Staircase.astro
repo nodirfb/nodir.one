@@ -1,0 +1,107 @@
+---
+/**
+ * The structural idea, as a component.
+ *
+ * Four fixed stops named STORE / MOVE / READ / WRITE. A line's horizontal start
+ * says which layer of the data chain it belongs to. A project that never reached
+ * a layer simply has no line there — a missing step you can see.
+ *
+ * This is a typographic element that carries information, which is the brief's
+ * own definition of a mark. It is not an SVG and it needs no legend, because the
+ * key is printed on every instance: the label IS the word.
+ *
+ * `gloss` renders the four words with a short definition each — used exactly once,
+ * at the head of the work index, so the axis is demonstrated rather than described.
+ * Four labels alone read as a list whose content failed to load, however much room
+ * they are given; the gloss is what makes it a legend instead.
+ *
+ * `mute` drops the label column and lets indentation alone carry the layer. See the
+ * note in index.astro about where that reads and where it does not.
+ */
+export const LAYERS = ['store', 'move', 'read', 'write'] as const;
+export type LayerKey = (typeof LAYERS)[number];
+
+interface Props {
+  layers?: Partial<Record<LayerKey, string>>;
+  gloss?: boolean;
+  mute?: boolean;
+  class?: string;
+}
+
+/** Read once, at the head of the work index, and never repeated. */
+const GLOSS: Record<LayerKey, string> = {
+  store: 'where the data lives',
+  move: 'the jobs that carry it',
+  read: 'models and reports',
+  write: 'what people actually use',
+};
+
+const { layers = {}, gloss = false, mute = false, class: cls = '' } = Astro.props;
+const rows = LAYERS.map((key, depth) => ({
+  key,
+  depth,
+  text: gloss ? GLOSS[key] : layers[key],
+})).filter((r) => r.text);
+---
+
+<div class:list={['staircase', cls]}>
+  {
+    rows.map((r) => (
+      <div class:list={['layer', `d${r.depth}`, mute && 'mute']}>
+        {mute ? <b class="sr-only">{r.key}</b> : <b>{r.key}</b>}
+        <span>{r.text}</span>
+      </div>
+    ))
+  }
+</div>
+
+<style>
+  .staircase {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+  }
+  .layer {
+    display: grid;
+    grid-template-columns: var(--label-col) minmax(0, 1fr);
+    font-family: var(--mono);
+    font-size: var(--t-layer);
+    line-height: 1.55;
+    /* Tracking is 0 here and nowhere else in the mono register: this is the one
+       place characters are counted, so 1ch must be the true 0.600em advance.
+       That exactness is what makes the 32-character content budget real. */
+    letter-spacing: 0;
+  }
+  .layer > b {
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--slate);
+  }
+  .layer > span {
+    color: var(--ink);
+  }
+  /* The key at the head of the work index: quiet, once, then never again. Its
+     gloss sits in Slate rather than Ink so the legend reads as apparatus and the
+     real layer lines below it read as content. No new value. */
+  .staircase.key .layer > span {
+    color: var(--slate);
+  }
+
+  /* Label suppressed visually but kept for screen readers: indentation is not
+     available to a linear reader, so the word has to survive in the accessibility
+     tree even when it leaves the page. */
+  .layer.mute {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+</style>

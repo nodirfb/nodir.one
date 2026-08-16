@@ -1,0 +1,60 @@
+/* ---------------------------------------------------------------------------
+   nodir.one — five values, no sixth. Including for disabled states, hover
+   grounds and placeholders. Every ratio below was computed from sRGB relative
+   luminance, not estimated.
+
+   The ladder in OKLCH lightness:
+       .966  →  .924  →  .561  →  .441  →  .238
+   steps:   -.042    -.363    -.120    -.203
+
+   The -.363 is a hole, and it is the point: nothing lives between L .92 and
+   L .56, which is exactly the band a "soft muted accent" would occupy on a
+   page that had one. There is no mid-tone anywhere, so the only mid-chroma
+   event on the whole site is the photograph.
+   --------------------------------------------------------------------------- */
+:root {
+  color-scheme: light;
+
+  --paper: #f2f4f6; /* oklch(96.6% .0034 258) — the one ground, everywhere      */
+  --shelf: #e3e6ea; /* oklch(92.4% .0050 258) — 1.14:1  image box, code ground  */
+  --trace: #71757a; /* oklch(56.1% .0090 258) — 4.21:1  link underline, ticks   */
+  --slate: #4e535a; /* oklch(44.1% .0130 258) — 7.03:1  all secondary text      */
+  --ink:   #1b1f26; /* oklch(23.8% .0147 258) — 14.99:1 all primary text, marks */
+
+  /* Trace is not chosen by eye. It is the value that clears 4:1 while staying
+     the lightest of the three greys. It has to clear 4:1 because it is the
+     resting link underline, and on a colourless page that underline is the
+     ENTIRE link affordance — a hairline sitting on the 3:1 floor disappears on
+     a dim screen in daylight, which is most of this site's reading conditions.
+
+     Darkening Trace to 4.21:1 left it only .081 from Slate, which is two greys
+     too close to read as distinct — a five-value ladder with one value named
+     twice. Slate moved down to .441 rather than merging the two, because they
+     do different jobs and the difference is directional: the underline must stay
+     QUIETER than secondary text (4.21:1 against 7.03:1). Merging would have made
+     every link underline exactly as dark as a date. Five honest values, .120
+     apart at the tightest point. */
+
+  --sans: 'IBM Plex Sans Variable', 'Plex Sans Fallback', system-ui, -apple-system, Arial, sans-serif;
+  --serif: 'Young Serif', 'Young Serif Fallback', Georgia, 'Times New Roman', serif;
+  --mono: 'IBM Plex Mono', 'Plex Mono Fallback', ui-monospace, Consolas, 'DejaVu Sans Mono', monospace;
+
+  /* Six near-flat steps, then one jump of 1.70 with nothing in the gap —
+     because this site has no h2 size. Sections are named at 13px in the same
+     mono label form as the layers, so the second-largest thing on the home
+     page is a project title. */
+  --t-meta:    clamp(0.75rem, 0.71rem + 0.11vw, 0.8125rem);
+  --t-label:   clamp(0.75rem, 0.71rem + 0.11vw, 0.8125rem);
+  --t-layer:   clamp(0.75rem, 0.66rem + 0.23vw, 0.875rem);
+  --t-summary: clamp(0.875rem, 0.83rem + 0.13vw, 0.9375rem);
+  --t-body:    clamp(1rem, 0.95rem + 0.16vw, 1.0625rem);
+  --t-title:   clamp(1.1875rem, 1.14rem + 0.13vw, 1.25rem);
+  --t-claim:   clamp(1.625rem, 1rem + 2.8vw, 2.125rem);
+
+  --field: 44rem;      /* 704 — the measure of the page, and of the photograph */
+  --measure: 38.25rem; /* 612 = 60ch at 17px — prose only                      */
+  --pad: clamp(1rem, 4vw, 2rem);
+  --step: clamp(0.875rem, 2.5vw, 2.25rem); /* 14 → 36; one indent stop         */
+  --label-col: 7ch;
+  --gap-section: clamp(3rem, 6vw, 5.5rem);
+}

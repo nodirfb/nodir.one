@@ -1,0 +1,76 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Staircase from '../../components/Staircase.astro';
+
+export async function getStaticPaths() {
+  const projects = await getCollection('projects', (p) => !p.data.draft);
+  return projects.map((project) => ({ params: { slug: project.id }, props: { project } }));
+}
+
+const { project } = Astro.props;
+const { Content } = await render(project);
+const { title, summary, layers, stack } = project.data;
+---
+
+<Base title={`${title} — Nodir`} description={summary} path={`/projects/${project.id}/`}>
+  <article>
+    <p class="label">Work</p>
+    <h1 class="claim project-title">{title}</h1>
+    <p class="prose summary">{summary}</p>
+
+    {/* Same grammar as the home index, same stops. The layer a project never
+        reached simply has no line, which is the whole signal. */}
+    <Staircase class="project-chain" layers={layers} />
+
+    <div class="prose body">
+      <Content />
+    </div>
+
+    <p class="label stack-label">Stack</p>
+    <p class="prose stack-list">{stack.join(' · ')}</p>
+
+    <p class="back"><a href="/#work">All work</a></p>
+  </article>
+</Base>
+
+<style>
+  .project-title {
+    /* One step down from the home page's claim: a project page is not the thesis. */
+    font-size: clamp(1.5rem, 1rem + 2.2vw, 1.875rem);
+    margin-bottom: 0.6rem;
+  }
+  .summary {
+    font-size: var(--t-summary);
+    color: var(--slate);
+    margin-bottom: 1.15rem;
+  }
+  .project-chain {
+    margin-bottom: 2rem;
+  }
+  .body :global(h2) {
+    font-family: var(--mono);
+    font-size: var(--t-label);
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--slate);
+    margin: 2rem 0 0.6rem;
+  }
+  .body :global(p) {
+    margin: 0 0 0.95rem;
+  }
+  .stack-label {
+    margin: 2.5rem 0 0.5rem;
+  }
+  .stack-list {
+    font-family: var(--mono);
+    font-size: var(--t-layer);
+    color: var(--ink);
+  }
+  .back {
+    margin-top: var(--gap-section);
+    font-family: var(--mono);
+    font-size: var(--t-meta);
+  }
+</style>

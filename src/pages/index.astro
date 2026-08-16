@@ -1,0 +1,303 @@
+---
+import { getCollection } from 'astro:content';
+import { getImage } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import Staircase from '../components/Staircase.astro';
+import heroWide from '../assets/hero-wide.jpg';
+import heroTall from '../assets/hero-tall.jpg';
+import clearance from '../data/photo-clearance.json';
+
+const projects = (await getCollection('projects', (p) => !p.data.draft)).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+/* Ordered by an explicit `order` field, not by date and not by filename. Dates are
+   absent until the posts are real, so "three most recent" would otherwise have meant
+   "whatever order the glob returned". See README. */
+const posts = (await getCollection('blog', (p) => !p.data.draft))
+  .sort((a, b) => a.data.order - b.data.order)
+  .slice(0, 3);
+
+/* Both hero files are already exactly their delivery size — variant A caps the
+   render at 1x, and that cap is what keeps the wall display illegible. So there
+   is one srcset candidate per crop and nothing is ever upscaled. */
+const set = async (src: ImageMetadata, format: 'avif' | 'webp', widths: number[]) =>
+  (
+    await Promise.all(
+      widths
+        .filter((w) => w <= src.width)
+        .map(async (w) => `${(await getImage({ src, format, width: w, quality: 70 })).src} ${w}w`),
+    )
+  ).join(', ');
+
+const WIDE = [704, 1408, 2112];
+const TALL = [328, 656, 984, 1312];
+const wideAvif = await set(heroWide, 'avif', WIDE);
+const wideWebp = await set(heroWide, 'webp', WIDE);
+const tallAvif = await set(heroTall, 'avif', TALL);
+const tallWebp = await set(heroTall, 'webp', TALL);
+const fallback = await getImage({ src: heroTall, format: 'jpeg', width: 656 });
+
+/* sizes must be present on every source: without it the browser assumes 100vw and
+   pulls the largest candidate for a 704px box. */
+const WIDE_SIZES = '704px';
+const TALL_SIZES = 'calc(100vw - 2 * clamp(1rem, 4vw, 2rem))';
+
+const alt =
+  'Nodir Fayzullayev in the Pentazone operations room, in front of the wall-mounted ' +
+  'display that runs the branch reporting he built.';
+
+const dateFmt = new Intl.DateTimeFormat('en-CA', { dateStyle: 'short' });
+
+const title = 'Nodir Fayzullayev — data systems, Tashkent';
+const description =
+  'The one-person data team at Pentazone: SQL Server schema and stored procedures, ' +
+  'Python reporting pipelines, Power BI models, a Telegram bot and the internal platform.';
+---
+
+<Base title={title} description={description} path="/">
+  {/* ---- Opening -------------------------------------------------------- */}
+  <section class="opening">
+    {
+      clearance.variant !== 'C' && (
+        <figure class="hero">
+          <picture>
+            <source media="(min-width: 900px)" type="image/avif" srcset={wideAvif} sizes={WIDE_SIZES} />
+            <source media="(min-width: 900px)" type="image/webp" srcset={wideWebp} sizes={WIDE_SIZES} />
+            <source type="image/avif" srcset={tallAvif} sizes={TALL_SIZES} />
+            <source type="image/webp" srcset={tallWebp} sizes={TALL_SIZES} />
+            <img
+              src={fallback.src}
+              width={heroTall.width}
+              height={heroTall.height}
+              alt={alt}
+              loading="eager"
+              fetchpriority="high"
+              decoding="sync"
+            />
+          </picture>
+        </figure>
+      )
+    }
+
+    <h1 class="claim">
+      One person is the wrong number of people to run a company&rsquo;s data function.
+    </h1>
+
+    <Staircase
+      class="opening-chain"
+      layers={{
+        store: 'SQL Server · stored procedures',
+        move: 'Python · pandas · ReportLab',
+        read: 'Power BI · DAX · PDF reports',
+        write: 'web platform · Telegram bot',
+      }}
+    />
+
+    {/* "The screen behind me is mine" said nothing checkable and pointed the
+        pronoun at a television. The verb is now "built", and "it" resolves to the
+        system rather than the display. Written to land in three lines once the two
+        placeholders are replaced with real values. */}
+    <p class="prose support">
+      I am the data analyst at Pentazone &mdash; indoor playgrounds, several branches,
+      Uzbekistan. I built the display above and the system behind it. It holds up on the
+      days I am not looking, which is the only test worth running.
+    </p>
+  </section>
+
+  {/* ---- Selected work -------------------------------------------------- */}
+  <section id="work">
+    <h2 class="label">Work</h2>
+    {/* The axis, named exactly once. A demonstration of the system rather than a
+        description of it — the four words sit at the four stops they define, each
+        with a two-or-three-word gloss so it reads as a legend and not as four
+        stranded labels. Once, small, in Slate. Then never again. */}
+    <Staircase gloss class="key" />
+
+    <ol class="work">
+      {
+        projects.map((p) => (
+          /* Titles sit at depth 0. Title-position-as-depth-index cost the work
+             index its one job — four names legible in three seconds — and the
+             depth signal survives where it always read better: in the stacks,
+             where Power BI's missing MOVE and QR's missing READ are visible as
+             real gaps. Nothing replaces the indent: no mark, no bar, no count. */
+          <li class="row">
+            <h3 class="title"><a href={`/projects/${p.id}/`}>{p.data.title}</a></h3>
+            <p class="summary">{p.data.summary}</p>
+            <Staircase layers={p.data.layers} />
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+
+  {/* ---- Stack ---------------------------------------------------------- */}
+  <section id="stack">
+    <h2 class="label">Stack</h2>
+    <Staircase
+      layers={{
+        store: 'SQL Server · T-SQL · 1C ERP',
+        move: 'Python · pandas · scheduling',
+        read: 'Power BI · DAX · ReportLab',
+        write: 'web platform · Telegram bot',
+      }}
+    />
+    <p class="prose after-chain">
+      Grouped by what it does, because that is how the work divides. Two of these are used
+      daily by people who have never met me.
+    </p>
+  </section>
+
+  {/* ---- Writing -------------------------------------------------------- */}
+  <section id="writing">
+    <h2 class="label">Writing</h2>
+    {/* The month dot-strip renders at five posts or more. Below that the dates
+        alone do the job, and a near-empty track would be a graphic whose actual
+        content is "he rarely writes." */}
+    <ol class="posts">
+      {
+        posts.map((post) => (
+          <li>
+            <h3 class="title">
+              <a href={`/blog/${post.id}/`}>{post.data.title}</a>
+            </h3>
+            <p class="summary">{post.data.description}</p>
+            <p class="meta">
+              {
+                post.data.pubDate ? (
+                  <time datetime={post.data.pubDate.toISOString()}>
+                    {dateFmt.format(post.data.pubDate)}
+                  </time>
+                ) : (
+                  <span class="todlir">[TO'LDIR — date]</span>
+                )
+              }
+              {post.data.readingMinutes && <>{' · '}{post.data.readingMinutes} min</>}
+            </p>
+          </li>
+        ))
+      }
+    </ol>
+    <p class="more"><a href="/blog/">All posts</a></p>
+  </section>
+
+  {/* ---- About ---------------------------------------------------------- */}
+  <section id="about">
+    <h2 class="label">About</h2>
+    <div class="prose stack-p">
+      <p>
+        I work in three languages and build in one direction: from the schema outward. Most
+        of what I do at Pentazone starts as somebody&rsquo;s spreadsheet and ends as a
+        table with constraints on it, a job that runs on a schedule, and a document that
+        arrives without being asked for.
+      </p>
+      {/* The training sparkline was cut here rather than kept. With the staircase
+          carrying the signature and the coverage bars gone, it was the only drawn
+          mark left on the site — and a population of one is not the scarcity the
+          brief asked for, it is a remnant. It was also the only element carrying no
+          information about the work, on data that does not exist yet. The mark
+          system returns when there is something to measure: the month dot strip at
+          five posts or more. */}
+      <p>I am training for a half marathon. It is the same discipline, minus the schema.</p>
+    </div>
+  </section>
+
+  {/* ---- Contact -------------------------------------------------------- */}
+  <section id="contact">
+    <h2 class="label">Contact</h2>
+    <ul class="contact">
+      <li class="layer"><b>Email</b><span><a href="mailto:nodirfayz18@gmail.com">nodirfayz18@gmail.com</a></span></li>
+      <li class="layer"><b>GitHub</b><span><a href="https://github.com/nodirfb" rel="me">github.com/nodirfb</a></span></li>
+      <li class="layer"><b>LinkedIn</b><span><a href="https://www.linkedin.com/in/nodirf/" rel="me">linkedin.com/in/nodirf</a></span></li>
+      <li class="layer"><b>Telegram</b><span><a href="https://t.me/nodirfayzullayev" rel="me">@nodirfayzullayev</a></span></li>
+    </ul>
+  </section>
+</Base>
+
+<style>
+  section { margin-top: var(--gap-section); }
+  .opening { margin-top: 0; }
+  section > .label { margin-bottom: 0.9rem; }
+
+  .claim { margin-bottom: clamp(0.75rem, 2vw, 1.15rem); }
+  .opening-chain { margin-bottom: clamp(0.85rem, 2vw, 1.15rem); }
+  .support { margin-bottom: 0; }
+
+  /* The key: quiet, once, then never again. It sits tight under the section
+     label so it reads as the header of the list rather than as an orphaned
+     first row with its content missing. */
+  /* No opacity here: fading Slate would manufacture a sixth value and drop it
+     below 4.5:1. Separation is done with space, which is free. */
+  :global(.staircase.key) { margin-bottom: 2.25rem; }
+
+
+  .work, .posts {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+  .row .title { margin-bottom: 0.15rem; }
+  .summary {
+    font-size: var(--t-summary);
+    color: var(--slate);
+    max-width: min(var(--measure), 100%);
+    margin-bottom: 0.5rem;
+  }
+  .posts .title { margin-bottom: 0.15rem; }
+  .meta {
+    font-family: var(--mono);
+    font-size: var(--t-meta);
+    letter-spacing: 0.02em;
+    color: var(--slate);
+    margin: 0;
+  }
+
+  .after-chain { margin-top: 1.1rem; }
+  .more {
+    margin-top: 1.5rem;
+    font-family: var(--mono);
+    font-size: var(--t-meta);
+  }
+  .stack-p { display: flex; flex-direction: column; }
+
+  .contact {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    /* 0.1rem here left each link a 15px-tall tap target with ~2px between
+       neighbours — under the 24px minimum. Four links in a column is exactly
+       the case that needs room, so the row breathes instead. */
+    gap: 0.3rem;
+    --label-col: 10ch;
+  }
+  /* Contact reuses the layer grammar: a fixed word from a closed vocabulary in
+     the label column, the value beside it. Same object, wider label. */
+  .contact .layer {
+    display: grid;
+    grid-template-columns: var(--label-col) minmax(0, 1fr);
+    align-items: center;
+    font-family: var(--mono);
+    font-size: var(--t-layer);
+    line-height: 1.55;
+  }
+  /* inline-block + vertical padding takes the tap target past 24px without
+     changing the type or the alignment of the label column. */
+  .contact .layer a {
+    display: inline-block;
+    padding-block: 0.32rem;
+  }
+  .contact .layer > b {
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--slate);
+  }
+  /* Slate, not Trace: Trace is 4.21:1 and declared non-text-only, so using it
+     for text fails AA. Caught by Lighthouse, not by eye. */
+  .todlir { color: var(--slate); }
+</style>

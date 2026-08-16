@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" role="img" aria-label="nodir.one">
+  <rect width="16" height="16" fill="#f2f4f6"/>
+  <g fill="#1b1f26">
+    <rect x="2" y="3.2" width="7" height="1.4"/>
+    <rect x="4" y="6.2" width="7" height="1.4"/>
+    <rect x="6" y="9.2" width="7" height="1.4"/>
+    <rect x="8" y="12.2" width="6" height="1.4"/>
+  </g>
+</svg>

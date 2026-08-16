@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.astro/
+# derived at build time by scripts/prepare-photos.mjs and scripts/copy-fonts.mjs
+src/assets/hero-wide.jpg
+src/assets/hero-tall.jpg
+public/fonts/
+public/og.jpg
+lh*.json
+
+# working briefs, not part of the site
+prompt.md
+prompt-images.md

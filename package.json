@@ -1,0 +1,26 @@
+{
+  "name": "nodir-one",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "prepare:photos": "node scripts/prepare-photos.mjs",
+    "prebuild": "npm run prepare:photos",
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check:links": "node scripts/linkcheck.mjs",
+    "check:lighthouse": "lighthouse http://localhost:4321/ --chrome-flags=\"--headless=new\" --only-categories=performance,accessibility,best-practices,seo --view"
+  },
+  "dependencies": {
+    "@astrojs/mdx": "^4",
+    "astro": "^5",
+    "sharp": "^0.34.0"
+  },
+  "devDependencies": {
+    "@fontsource-variable/ibm-plex-sans": "^5.3.0",
+    "@fontsource/ibm-plex-mono": "^5.3.0",
+    "@fontsource/young-serif": "^5.3.0",
+    "lighthouse": "^12.8.2"
+  }
+}
