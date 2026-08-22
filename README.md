@@ -1,33 +1,40 @@
 # nodir.one
 
 Personal site and blog. Astro, plain CSS, no framework on the client — the pages ship
-zero JavaScript. Deployed to GitHub Pages on every push to `main`.
+zero JavaScript. Built and hosted on Cloudflare Pages, from `main`.
 
 ---
 
 ## Running it locally
 
-You need [Node.js](https://nodejs.org) 20 or newer.
+You need [Node.js](https://nodejs.org) **18.20.8, 20.3.0+, or 22+** — 22 is what
+`.nvmrc` pins and what the site is built with. Node 21 is not supported (sharp allows
+it, Astro does not).
 
 ```bash
 npm install          # once
 npm run dev          # http://localhost:4321
 ```
 
-`npm run dev` does **not** generate the images or copy the fonts. Run those once after
-cloning, and again whenever you replace a photograph:
+`npm run dev` does **not** generate the images or copy the fonts, because it skips the
+`prebuild` step. Run them once after cloning, and again whenever you replace a
+photograph:
 
 ```bash
-node scripts/copy-fonts.mjs      # fonts -> public/fonts/
-node scripts/prepare-photos.mjs  # hero crops + public/og.jpg
+npm run prepare:fonts    # fonts  -> public/fonts/
+npm run prepare:photos   # hero crops + public/og.jpg
 ```
 
 To check the real production output:
 
 ```bash
-npm run build        # -> dist/   (runs prepare-photos automatically)
+npm run build        # -> dist/   (prebuild runs BOTH scripts first)
 npm run preview      # serves dist/ at http://localhost:4321
 ```
+
+`npm run build` is self-sufficient: a clean clone needs nothing but `npm install` before
+it. Both derived-asset scripts run from `prebuild`, so the build cannot ship without its
+fonts.
 
 ### What the two scripts are for
 
@@ -134,10 +141,34 @@ a glance.
 
 ## Deploying
 
-Pushing to `main` builds and publishes automatically via
-`.github/workflows/deploy.yml`.
+Hosted on **Cloudflare Pages**, built from this repository on every push to `main`.
 
-The three commands:
+There is no deployment workflow in this repo and that is deliberate: Cloudflare builds
+the site itself, so a committed CI workflow would be a second, silently divergent copy of
+the build configuration.
+
+### Cloudflare Pages build settings
+
+| Setting | Value |
+| --- | --- |
+| Framework preset | Astro |
+| Build command | `npm run build` |
+| Build output directory | `dist` |
+| Root directory | *(leave empty)* |
+| Node version | 22 — read automatically from `.nvmrc` |
+
+`npm run build` is self-sufficient. Its `prebuild` step copies the fonts into
+`public/fonts/` and derives the hero crops and `public/og.jpg` from the original
+photograph, both of which are gitignored. Nothing has to be run before it and no extra
+build step is needed.
+
+The build needs **Node 18.20.8, 20.3.0+, or 22+** — the intersection of what Astro and
+sharp accept. Node 21 does not work: sharp allows it, Astro does not. `.nvmrc` pins 22,
+and `engines` in `package.json` records the full supported range. If Cloudflare ever
+ignores `.nvmrc`, set the environment variable `NODE_VERSION` to `22` in the project's
+build settings.
+
+### The three commands
 
 ```bash
 git add -A
@@ -145,70 +176,32 @@ git commit -m "Update site"
 git push origin main
 ```
 
-**One-time setup in GitHub:** repository → **Settings** → **Pages** → under *Build and
-deployment*, set **Source** to **GitHub Actions**. Without this the workflow runs and
-succeeds but nothing is published.
-
-`public/CNAME` contains `nodir.one` and must stay there — it is what tells GitHub Pages to
-serve the custom domain.
-
 ---
 
-## DNS at Porkbun
+## DNS
 
-You need five records: four `A` records that point the bare domain at GitHub, and one
-`CNAME` that points `www` at your GitHub Pages address. Nothing here costs anything.
+The `nodir.one` nameservers are already delegated to Cloudflare, so the records live in
+the Cloudflare dashboard and there is nothing to configure at the registrar.
 
-### Step by step
+Because the zone is on Cloudflare, **you do not add DNS records by hand for this site.**
+In the Pages project go to **Custom domains** → **Set up a custom domain**, add
+`nodir.one`, and repeat for `www.nodir.one`. Cloudflare creates and proxies the records
+itself and issues the certificate.
 
-1. Sign in at [porkbun.com](https://porkbun.com) and go to **Domain Management**.
-2. Find `nodir.one` and click **DNS** (sometimes shown as *Edit DNS Records*).
-3. You will see a list of existing records. **Delete any existing `A` or `ALIAS` record
-   whose Host is blank or `@`**, and any `CNAME` whose host is `www`. Porkbun adds
-   parking records when you buy a domain and they will conflict with these.
-4. Add the five records below, one at a time.
+Two things worth knowing:
 
-### The records
+- The existing `eticket.nodir.one` tunnel is a separate record on the same zone and is not
+  affected. Adding the apex and `www` does not touch it. Do not delete records you did not
+  create — the tunnel's record is one of them.
+- If the apex already has a record from an earlier experiment, Cloudflare will ask to
+  replace it. Check what it is before agreeing.
 
-Leave **Host** completely empty for the four `A` records. Porkbun treats an empty host as
-the bare domain, `nodir.one`.
-
-| Type | Host | Answer / Value | TTL |
-| --- | --- | --- | --- |
-| A | *(leave empty)* | `185.199.108.153` | 600 |
-| A | *(leave empty)* | `185.199.109.153` | 600 |
-| A | *(leave empty)* | `185.199.110.153` | 600 |
-| A | *(leave empty)* | `185.199.111.153` | 600 |
-| CNAME | `www` | `USERNAME.github.io` | 600 |
-
-Replace `USERNAME` with your GitHub username, and keep the trailing `.github.io`. Do not
-put the repository name in it. If your username is `nodirf`, the value is
-`nodirf.github.io`.
-
-All four `A` records are correct and all four are needed — they are GitHub's four Pages
-servers, and listing them all is what keeps the site up if one is unavailable.
-
-### Then, back in GitHub
-
-1. Repository → **Settings** → **Pages**.
-2. Under **Custom domain**, enter `nodir.one` and press **Save**.
-3. Wait for the **DNS check** to pass. This usually takes ten to thirty minutes, and can
-   take up to a few hours the first time. It is normal to see a red warning in that
-   window — it means "not yet", not "wrong".
-4. Once the check passes, tick **Enforce HTTPS**. This box is greyed out until GitHub has
-   issued the certificate, which happens automatically after the DNS check passes. If it
-   is still greyed out after a few hours, remove the custom domain, save, re-add it, and
-   save again — that re-triggers certificate issuance.
-
-### Checking it yourself
+To verify once it is live:
 
 ```bash
-nslookup nodir.one          # should list the four 185.199.x.x addresses
-nslookup www.nodir.one      # should show USERNAME.github.io
+curl -sI https://nodir.one | head -3        # expect HTTP/2 200
+curl -s https://nodir.one | grep -o "<title>[^<]*"
 ```
-
-If `nslookup` still shows old values, your computer has cached them. Wait, or try from a
-phone on mobile data.
 
 ---
 

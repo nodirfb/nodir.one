@@ -3,9 +3,13 @@
   "type": "module",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "18.20.8 || ^20.3.0 || >=22.0.0"
+  },
   "scripts": {
+    "prepare:fonts": "node scripts/copy-fonts.mjs",
     "prepare:photos": "node scripts/prepare-photos.mjs",
-    "prebuild": "npm run prepare:photos",
+    "prebuild": "npm run prepare:fonts && npm run prepare:photos",
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
