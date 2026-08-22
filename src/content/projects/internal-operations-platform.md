@@ -5,8 +5,8 @@ layers:
   store: SQL Server · schema · procs
   move: Python · scheduled jobs
   read: dashboards · exports
-  write: the platform · approvals
-stack: [SQL Server, T-SQL, Python, "[TO'LDIR — framework]"]
+  write: Next.js · React · Tailwind
+stack: [SQL Server, T-SQL, Python, Next.js, React, Tailwind CSS]
 order: 1
 ---
 
