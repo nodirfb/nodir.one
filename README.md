@@ -58,6 +58,19 @@ assertion will tell you.
 
 ---
 
+## Site structure
+
+- `/` is the professional overview: profile, current experience, selected projects, and toolkit.
+- `/about/` carries the longer background, working approach, education, certification, and languages.
+- `/blog/` is the Writing index; each post keeps its own `/blog/<slug>/` page.
+- `/contact/` contains the public contact channels.
+- Project case studies live at `/projects/<slug>/` and remain linked from the home page.
+
+The masthead uses real page links for About, Writing, and Contact. Work intentionally
+links back to the project index on the home page.
+
+---
+
 ## Adding a blog post
 
 Create `src/content/blog/my-post-slug.md`. The filename becomes the URL:
@@ -88,17 +101,14 @@ Body in Markdown. `## Headings` become section headings.
 
 The index is sorted by `order`, not by date and not by filename.
 
-The three posts currently in the repo have **no `pubDate`**, deliberately: they are
-drafts, and a placeholder date would ship a fabricated timeline that looks real. Sorting
-by date would therefore have silently degraded to whatever order the file glob returned,
-and "three most recent" on the home page would have stopped being true without anything
-appearing to break.
+The three posts currently in the repo have **no `pubDate`**, deliberately. Sorting by
+date would therefore silently degrade to whatever order the file glob returned.
 
-When every post has a real `pubDate`, switch the sort in `src/pages/index.astro` and
-`src/pages/blog/index.astro` to use it, and drop `order` from the schema.
+When every post has a real `pubDate`, switch the sort in `src/pages/blog/index.astro` to
+use it, and drop `order` from the schema.
 
-Posts with no date render `[TO'LDIR — date]` where the date would go, so an undated post
-is visible rather than silently blank.
+Posts with no date simply omit the metadata line. A reading time still renders when one
+is provided.
 
 ---
 
@@ -213,9 +223,7 @@ curl -s https://nodir.one | grep -o "<title>[^<]*"
 - **The inline data marks.** The site currently has none. The per-project coverage bar was
   cut because it was one step from a banned skill bar, and its information became the
   indentation instead. The training sparkline was cut because a single mark is not a
-  system. The month dot strip returns automatically in the Writing index once there are
-  five or more posts — below that, a near-empty track would be a graphic whose real
-  content is "he rarely writes".
+  system.
 - **The hero photograph.** `src/data/photo-clearance.json` selects the crop variant.
   `B` is current and ships the display sharp and legible, which requires the company's
   permission covering the figures on screen. `A` caps the render so the display reads as

@@ -1,49 +1,31 @@
 ---
 title: Automated audit reporting
-summary: Forms go in, a scored bilingual PDF comes out, and nobody opens a laptop to make it.
+summary: Google Forms become scored bilingual PDFs through a scheduled SQL Server and Python pipeline.
 layers:
-  store: SQL Server · audit schema
-  move: Python · pandas · ReportLab
+  store: SQL Server · audit data
+  move: Python · scoring · ReportLab
   read: UZ/RU PDF · distribution
 stack: [Google Forms, SQL Server, Python, pandas, ReportLab, Scheduled jobs]
-order: 2
+order: 4
 ---
 
 ## Context
 
-Pentazone audits every branch against the same checklist on the same schedule. The audits
-were collected on paper: an auditor visited a site, filled in a form by hand, drove back,
-and typed it up.
-
-## Problem
-
-The write-up was the bottleneck, and it was also where consistency drifted.
-
-Reports arrived days after the visit, which is long enough that the finding has stopped
-being actionable — by the time the office reads that a checklist item failed, the shift
-that failed it has turned over twice. And because each report was typed by hand, no two
-were laid out the same way. Comparing this month against last month meant reading two
-differently shaped documents and holding the difference in your head.
-
-Scoring was done manually as well, so the score depended slightly on who was adding up.
+Pentazone audits its branches against a recurring checklist. The useful output is not
+the form response itself, but a consistently scored report that can be read by the
+people responsible for the result.
 
 ## What I built
 
-The form moved to Google Forms, and responses land in SQL Server. A scheduled Python job
-picks up new responses, applies the scoring rules, and renders a formatted PDF with
-ReportLab. Distribution is part of the job, not a step someone remembers to do.
+I automated the reporting chain end to end. Google Forms responses flow into SQL Server,
+a scheduled Python process applies the scoring logic, and ReportLab renders the result
+as a bilingual PDF.
 
-Two details did most of the work. The scoring rules live in one place and are applied by
-the job rather than by a person, so the same answers always produce the same score. And
-the report carries a bilingual Uzbek and Russian cover letter, because the auditors and
-the office do not read the same language — before, that translation was informal and
-happened in conversation, which meant it did not happen at all for anyone who was not in
-the conversation.
-
-The first page is written for the director and the rest for the branch manager.
+Distribution is part of the same process, so nobody has to assemble, format, or forward
+the report manually.
 
 ## What changed
 
-The report is generated from the response rather than written from it. It arrives before
-the auditor is back at the office, every month has the same shape, and the score means
-the same thing in March as it did in January.
+Every response now goes through the same scoring and document-generation path. Reports
+arrive in a consistent Uzbek and Russian format without a separate manual reporting
+cycle.

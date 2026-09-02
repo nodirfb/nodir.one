@@ -10,12 +10,6 @@ import clearance from '../data/photo-clearance.json';
 const projects = (await getCollection('projects', (p) => !p.data.draft)).sort(
   (a, b) => a.data.order - b.data.order,
 );
-/* Ordered by an explicit `order` field, not by date and not by filename. Dates are
-   absent until the posts are real, so "three most recent" would otherwise have meant
-   "whatever order the glob returned". See README. */
-const posts = (await getCollection('blog', (p) => !p.data.draft))
-  .sort((a, b) => a.data.order - b.data.order)
-  .slice(0, 3);
 
 /* Both hero files are already exactly their delivery size — variant A caps the
    render at 1x, and that cap is what keeps the wall display illegible. So there
@@ -46,12 +40,9 @@ const alt =
   'Nodir Fayzullayev in the Pentazone operations room, in front of the wall-mounted ' +
   'display that runs the branch reporting he built.';
 
-const dateFmt = new Intl.DateTimeFormat('en-CA', { dateStyle: 'short' });
-
-const title = 'Nodir Fayzullayev — data systems, Tashkent';
+const title = 'Nodir Fayzullayev — Data Analyst in Tashkent';
 const description =
-  'The one-person data team at Pentazone: SQL Server schema and stored procedures, ' +
-  'Python reporting pipelines, Power BI models, a Telegram bot and the internal platform.';
+  'Data analyst building the full operational data chain: 1C extraction, SQL Server models, Power BI, Python automation, and internal tools.';
 ---
 
 <Base title={title} description={description} path="/">
@@ -79,9 +70,8 @@ const description =
       )
     }
 
-    <h1 class="claim">
-      One person is the wrong number of people to run a company&rsquo;s data function.
-    </h1>
+    <p class="label eyebrow">Data analyst · Tashkent, Uzbekistan</p>
+    <h1 class="claim">I build the data systems behind everyday decisions.</h1>
 
     <Staircase
       class="opening-chain"
@@ -93,15 +83,49 @@ const description =
       }}
     />
 
-    {/* "The screen behind me is mine" said nothing checkable and pointed the
-        pronoun at a television. The verb is now "built", and "it" resolves to the
-        system rather than the display. Written to land in three lines once the two
-        placeholders are replaced with real values. */}
     <p class="prose support">
-      I am the data analyst at Pentazone &mdash; indoor playgrounds, several branches,
-      Uzbekistan. I built the display above and the system behind it. It holds up on the
-      days I am not looking, which is the only test worth running.
+      I&rsquo;m Nodir, the sole data analyst for a seven-branch family entertainment
+      company. I take work from messy 1C data and SQL Server models through Power BI,
+      Python automation, and internal tools used daily by around 20 people.
     </p>
+  </section>
+
+  {/* ---- Profile -------------------------------------------------------- */}
+  <section id="profile">
+    <h2 class="label">Profile</h2>
+    <div class="prose stack-p">
+      <p>
+        I work comfortably on undefined operational problems: interviewing the people
+        who have them, measuring what is going wrong, and shipping a system that makes
+        the answer repeatable.
+      </p>
+      <p>
+        My work spans the full chain from ERP extraction and dimensional modelling to
+        dashboards, automated reports, and small applications built around how people
+        actually work.
+      </p>
+    </div>
+    <p class="more"><a href="/about/">More about me</a></p>
+  </section>
+
+  {/* ---- Experience ----------------------------------------------------- */}
+  <section id="experience">
+    <h2 class="label">Experience</h2>
+    <article class="experience">
+      <header class="experience-head">
+        <div>
+          <h3 class="title">Data Analyst · Pentazone</h3>
+          <p class="summary">First and only data hire for seven branches across Uzbekistan.</p>
+        </div>
+        <p class="meta">Oct 2025 — Present</p>
+      </header>
+      <ul class="evidence prose">
+        <li>Built the Power BI operations wall board used daily by the founder and department heads.</li>
+        <li>Designed staging and dimensional layers over 1C ERP so reporting no longer depends on 1C internals.</li>
+        <li>Analysed 1,327 maintenance requests and 747 audit comments, tracing 11 systemic failures to three root causes.</li>
+        <li>Shipped a six-role operations platform with four-stage approvals for around 20 staff.</li>
+      </ul>
+    </article>
   </section>
 
   {/* ---- Selected work -------------------------------------------------- */}
@@ -116,11 +140,8 @@ const description =
     <ol class="work">
       {
         projects.map((p) => (
-          /* Titles sit at depth 0. Title-position-as-depth-index cost the work
-             index its one job — four names legible in three seconds — and the
-             depth signal survives where it always read better: in the stacks,
-             where Power BI's missing MOVE and QR's missing READ are visible as
-             real gaps. Nothing replaces the indent: no mark, no bar, no count. */
+          /* Titles sit at depth 0 so the index stays legible at a glance. The
+             project-specific staircase carries the data-chain signal. */
           <li class="row">
             <h3 class="title"><a href={`/projects/${p.id}/`}>{p.data.title}</a></h3>
             <p class="summary">{p.data.summary}</p>
@@ -131,86 +152,22 @@ const description =
     </ol>
   </section>
 
-  {/* ---- Stack ---------------------------------------------------------- */}
-  <section id="stack">
-    <h2 class="label">Stack</h2>
+  {/* ---- Toolkit -------------------------------------------------------- */}
+  <section id="toolkit">
+    <h2 class="label">Toolkit</h2>
     <Staircase
       layers={{
         store: 'SQL Server · T-SQL · 1C ERP',
-        move: 'Python · pandas · scheduling',
+        move: 'Python · pandas · SQLAlchemy',
         read: 'Power BI · DAX · ReportLab',
-        write: 'web platform · Telegram bot',
+        write: 'Next.js · React · Telegram',
       }}
     />
     <p class="prose after-chain">
-      Grouped by what it does, because that is how the work divides. Two of these are used
-      daily by people who have never met me.
+      I use the smallest useful tool for the job: a semantic layer when definitions drift,
+      a scheduled report when repetition is the problem, and an application when the
+      workflow itself needs to change.
     </p>
-  </section>
-
-  {/* ---- Writing -------------------------------------------------------- */}
-  <section id="writing">
-    <h2 class="label">Writing</h2>
-    {/* The month dot-strip renders at five posts or more. Below that the dates
-        alone do the job, and a near-empty track would be a graphic whose actual
-        content is "he rarely writes." */}
-    <ol class="posts">
-      {
-        posts.map((post) => (
-          <li>
-            <h3 class="title">
-              <a href={`/blog/${post.id}/`}>{post.data.title}</a>
-            </h3>
-            <p class="summary">{post.data.description}</p>
-            <p class="meta">
-              {
-                post.data.pubDate ? (
-                  <time datetime={post.data.pubDate.toISOString()}>
-                    {dateFmt.format(post.data.pubDate)}
-                  </time>
-                ) : (
-                  <span class="todlir">[TO'LDIR — date]</span>
-                )
-              }
-              {post.data.readingMinutes && <>{' · '}{post.data.readingMinutes} min</>}
-            </p>
-          </li>
-        ))
-      }
-    </ol>
-    <p class="more"><a href="/blog/">All posts</a></p>
-  </section>
-
-  {/* ---- About ---------------------------------------------------------- */}
-  <section id="about">
-    <h2 class="label">About</h2>
-    <div class="prose stack-p">
-      <p>
-        I work in three languages and build in one direction: from the schema outward. Most
-        of what I do at Pentazone starts as somebody&rsquo;s spreadsheet and ends as a
-        table with constraints on it, a job that runs on a schedule, and a document that
-        arrives without being asked for.
-      </p>
-      {/* The training sparkline was cut here rather than kept. With the staircase
-          carrying the signature and the coverage bars gone, it was the only drawn
-          mark left on the site — and a population of one is not the scarcity the
-          brief asked for, it is a remnant. It was also the only element carrying no
-          information about the work, on data that does not exist yet. The mark
-          system returns when there is something to measure: the month dot strip at
-          five posts or more. */}
-      <p>I am training for a half marathon. It is the same discipline, minus the schema.</p>
-    </div>
-  </section>
-
-  {/* ---- Contact -------------------------------------------------------- */}
-  <section id="contact">
-    <h2 class="label">Contact</h2>
-    <ul class="contact">
-      <li class="layer"><b>Email</b><span><a href="mailto:nodirfayz18@gmail.com">nodirfayz18@gmail.com</a></span></li>
-      <li class="layer"><b>GitHub</b><span><a href="https://github.com/nodirfb" rel="me">github.com/nodirfb</a></span></li>
-      <li class="layer"><b>LinkedIn</b><span><a href="https://www.linkedin.com/in/nodirf/" rel="me">linkedin.com/in/nodirf</a></span></li>
-      <li class="layer"><b>Telegram</b><span><a href="https://t.me/nodirfayzullayev" rel="me">@nodirfayzullayev</a></span></li>
-    </ul>
   </section>
 </Base>
 
@@ -220,6 +177,7 @@ const description =
   section > .label { margin-bottom: 0.9rem; }
 
   .claim { margin-bottom: clamp(0.75rem, 2vw, 1.15rem); }
+  .eyebrow { margin-bottom: 0.7rem; }
   .opening-chain { margin-bottom: clamp(0.85rem, 2vw, 1.15rem); }
   .support { margin-bottom: 0; }
 
@@ -231,7 +189,7 @@ const description =
   :global(.staircase.key) { margin-bottom: 2.25rem; }
 
 
-  .work, .posts {
+  .work {
     list-style: none;
     margin: 0;
     padding: 0;
@@ -246,7 +204,6 @@ const description =
     max-width: min(var(--measure), 100%);
     margin-bottom: 0.5rem;
   }
-  .posts .title { margin-bottom: 0.15rem; }
   .meta {
     font-family: var(--mono);
     font-size: var(--t-meta);
@@ -262,42 +219,18 @@ const description =
     font-size: var(--t-meta);
   }
   .stack-p { display: flex; flex-direction: column; }
-
-  .contact {
-    list-style: none;
-    margin: 0;
-    padding: 0;
+  .experience-head {
     display: flex;
-    flex-direction: column;
-    /* 0.1rem here left each link a 15px-tall tap target with ~2px between
-       neighbours — under the 24px minimum. Four links in a column is exactly
-       the case that needs room, so the row breathes instead. */
-    gap: 0.3rem;
-    --label-col: 10ch;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.5rem 1.5rem;
+    margin-bottom: 1rem;
   }
-  /* Contact reuses the layer grammar: a fixed word from a closed vocabulary in
-     the label column, the value beside it. Same object, wider label. */
-  .contact .layer {
-    display: grid;
-    grid-template-columns: var(--label-col) minmax(0, 1fr);
-    align-items: center;
-    font-family: var(--mono);
-    font-size: var(--t-layer);
-    line-height: 1.55;
+  .experience-head .summary { margin: 0; }
+  .evidence {
+    margin: 0;
+    padding-inline-start: 1.2rem;
   }
-  /* inline-block + vertical padding takes the tap target past 24px without
-     changing the type or the alignment of the label column. */
-  .contact .layer a {
-    display: inline-block;
-    padding-block: 0.32rem;
-  }
-  .contact .layer > b {
-    font-weight: 400;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--slate);
-  }
-  /* Slate, not Trace: Trace is 4.21:1 and declared non-text-only, so using it
-     for text fails AA. Caught by Lighthouse, not by eye. */
-  .todlir { color: var(--slate); }
+  .evidence li + li { margin-top: 0.55rem; }
 </style>

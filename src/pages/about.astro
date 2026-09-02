@@ -1,0 +1,105 @@
+---
+import Base from '../layouts/Base.astro';
+import Staircase from '../components/Staircase.astro';
+---
+
+<Base
+  title="About — Nodir Fayzullayev"
+  description="About Nodir Fayzullayev, a data analyst in Tashkent working across SQL Server, Power BI, Python, 1C ERP, and internal tools."
+  path="/about/"
+>
+  <header class="intro">
+    <p class="label">About</p>
+    <h1 class="claim">From an unclear operational problem to a system people can use.</h1>
+    <p class="prose lead">
+      I&rsquo;m a data analyst in Tashkent and the first data hire at Pentazone, a
+      seven-branch family entertainment company. I own the chain from 1C extraction and
+      SQL Server modelling to Power BI, Python reporting, and internal applications.
+    </p>
+  </header>
+
+  <section>
+    <h2 class="label">How I work</h2>
+    <div class="prose">
+      <p>
+        I&rsquo;m most useful when the problem is real but the specification is not.
+        I interview the people doing the work, quantify where the process fails, and
+        turn that understanding into a model, report, automation, or application.
+      </p>
+      <p>
+        At Pentazone, that approach helped connect a company-wide systems analysis to
+        the platform built from it: 1,327 maintenance requests and 747 audit comments
+        were classified, 11 systemic failures were traced to three root causes, and the
+        resulting workflow now supports around 20 staff.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="label">Skills</h2>
+    <Staircase
+      layers={{
+        store: 'SQL Server · T-SQL · 1C ERP',
+        move: 'Python · pandas · SQLAlchemy',
+        read: 'Power BI · DAX · Excel',
+        write: 'Next.js · React · PySide6',
+      }}
+    />
+    <p class="prose note">
+      Also: dimensional modelling, star schemas, ETL, row-level security, openpyxl,
+      ReportLab, python-telegram-bot, and Git.
+    </p>
+  </section>
+
+  <section>
+    <h2 class="label">Education</h2>
+    <div class="records">
+      <article>
+        <h3 class="title">Data Analytics · MAAB Academy</h3>
+        <p class="summary">Seven-month programme, graduated · Tashkent</p>
+        <p class="meta">2024 — 2025</p>
+      </article>
+      <article>
+        <h3 class="title">Finance and Financial Technologies</h3>
+        <p class="summary">Part-time · Qarshi State Technical University</p>
+        <p class="meta">2022 — 2024</p>
+      </article>
+      <article>
+        <h3 class="title">Microsoft PL-300 · Power BI Data Analyst</h3>
+        <p class="summary">In progress</p>
+        <p class="meta">Expected November 2026</p>
+      </article>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="label">Languages</h2>
+    <p class="prose">Uzbek · native &nbsp;&nbsp; Russian · professional &nbsp;&nbsp; English · professional</p>
+  </section>
+</Base>
+
+<style>
+  .intro .label,
+  section > .label { margin-bottom: 0.9rem; }
+  .intro .claim { margin-bottom: 1.15rem; }
+  .lead { font-size: var(--t-summary); }
+  section { margin-top: var(--gap-section); }
+  .note { margin-top: 1.1rem; }
+  .records {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+  .records .title { margin-bottom: 0.15rem; }
+  .summary {
+    color: var(--slate);
+    font-size: var(--t-summary);
+    margin-bottom: 0.25rem;
+  }
+  .meta {
+    color: var(--slate);
+    font-family: var(--mono);
+    font-size: var(--t-meta);
+    letter-spacing: 0.02em;
+  }
+</style>

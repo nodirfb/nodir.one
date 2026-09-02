@@ -14,6 +14,17 @@ const { title, description, path = '/' } = Astro.props;
 const site = Astro.site ?? new URL('https://nodir.one');
 const canonical = new URL(path, site);
 const ogImage = new URL('/og.jpg', site);
+const currentSection = path === '/'
+  ? 'home'
+  : path.startsWith('/about')
+    ? 'about'
+    : path.startsWith('/blog')
+      ? 'writing'
+      : path.startsWith('/contact')
+        ? 'contact'
+        : path.startsWith('/projects')
+          ? 'work'
+          : undefined;
 ---
 
 <!doctype html>
@@ -68,14 +79,14 @@ const ogImage = new URL('/og.jpg', site);
     <a class="skip-link" href="#main">Skip to content</a>
     <div class="page">
       <header class="masthead">
-        <p class="label who">
-          Nodir Fayzullayev — data systems, Tashkent
-        </p>
-        <nav aria-label="Sections">
-          <a href="#work">work</a>
-          <a href="#writing">writing</a>
-          <a href="#about">about</a>
-          <a href="#contact">contact</a>
+        <a class="label who" href="/" aria-current={currentSection === 'home' ? 'page' : undefined}>
+          Nodir Fayzullayev — Data Analyst
+        </a>
+        <nav aria-label="Primary navigation">
+          <a href="/#work" aria-current={currentSection === 'work' ? 'page' : undefined}>work</a>
+          <a href="/about/" aria-current={currentSection === 'about' ? 'page' : undefined}>about</a>
+          <a href="/blog/" aria-current={currentSection === 'writing' ? 'page' : undefined}>writing</a>
+          <a href="/contact/" aria-current={currentSection === 'contact' ? 'page' : undefined}>contact</a>
         </nav>
       </header>
       <main id="main">
@@ -107,6 +118,11 @@ const ogImage = new URL('/og.jpg', site);
   .who {
     text-transform: none;
     letter-spacing: 0.02em;
+  }
+  .who[aria-current='page'],
+  .masthead nav a[aria-current='page'] {
+    text-decoration-color: var(--ink);
+    text-decoration-thickness: 2px;
   }
   /* Slate, not Trace: Trace is 4.21:1 and declared non-text-only. */
   .todlir {
